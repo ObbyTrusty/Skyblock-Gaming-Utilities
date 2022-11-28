@@ -1,0 +1,8 @@
+/.env
+/venv/
+/test.py
+/.idea/
+*.sqlite
+__pycache__/*
+cogs/__pycache__
+/database
