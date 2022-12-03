@@ -107,20 +107,22 @@ class GuildFeatures(commands.Cog):
                                               description=f'Channel has been set to {channel.mention}',
                                               colour=0xee6940)
                         await ctx.respond(embed=embed)
-                        async with aiohttp.ClientSession as session:
-                            async with session.get(f'https://api.hypixel.net/guild?key={os.getenv("APIKEY")}&id={row[1]}') as response:
-                                if response.status != 200:
-                                    return
-                                data = await response.json()
-
-                                if data['success'] is False:
-                                    return
-                                if data['guild'] is None:
-                                    return
-
-                            await channel.edit(name=f'{data["guild"]["name"]} Members: {len(data["guild"]["members"])}')
-                            print(f'Updated Voice for {ctx.guild}')
+                        session = aiohttp.ClientSession()
+                        response = await session.get(
+                            f'https://api.hypixel.net/guild?key={os.getenv("APIKEY")}&id={row[1]}')
+                        if response.status != 200:
                             return
+                        data = await response.json()
+
+                        if data['success'] is False:
+                            return
+                        if data['guild'] is None:
+                            return
+
+                        await channel.edit(name=f'{data["guild"]["name"]} Members: {len(data["guild"]["members"])}')
+                        print(f'Updated Voice for {ctx.guild}')
+                        await session.close()
+                        return
                     embed = discord.Embed(title=f'Error',
                                           description='No guild linked to this server. \nTo link a guild use `/guild link`',
                                           colour=0xFF0000)
