@@ -1,10 +1,7 @@
 import os
 import sqlite3
-
 import aiohttp
 from discord.ext import commands, tasks
-from aiohttp_client_cache import CachedSession, SQLiteBackend
-
 
 class GuildTasks(commands.Cog):
     def __init__(self, bot):

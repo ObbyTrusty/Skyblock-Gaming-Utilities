@@ -5,6 +5,8 @@ from discord.commands import SlashCommandGroup
 from discord import option
 import os
 import aiosqlite
+import aiohttp
+
 
 class GuildFeatures(commands.Cog):
     def __init__(self, bot):
@@ -44,7 +46,8 @@ class GuildFeatures(commands.Cog):
             guilduuid = data['guild']['_id']
             guild = data['guild']['name']
             async with aiosqlite.connect('database/SGGuildDB.sqlite') as db:
-                async with db.execute("SELECT * FROM sgguildutilsdb WHERE discord_guild_id = ?", (ctx.guild.id,)) as cursor:
+                async with db.execute("SELECT * FROM sgguildutilsdb WHERE discord_guild_id = ?",
+                                      (ctx.guild.id,)) as cursor:
                     async for row in cursor:
                         if row is not None:
                             embed = discord.Embed(title=f'Error',
@@ -57,7 +60,8 @@ class GuildFeatures(commands.Cog):
                                                   colour=0xFF0000)
                             await ctx.respond(embed=embed)
                             return
-                    await db.execute(f'''INSERT INTO sgguildutilsdb VALUES (?, ?, ?)''', (ctx.guild.id, guilduuid, None))
+                    await db.execute(f'''INSERT INTO sgguildutilsdb VALUES (?, ?, ?)''',
+                                     (ctx.guild.id, guilduuid, None))
                     await db.commit()
                     embed = discord.Embed(title=f'Guild Linked!',
                                           description=f'**{guild}** has been linked to this server.',
@@ -103,9 +107,9 @@ class GuildFeatures(commands.Cog):
                                               description=f'Channel has been set to {channel.mention}',
                                               colour=0xee6940)
                         await ctx.respond(embed=embed)
-                        async with CachedSession(
-                                cache=SQLiteBackend('database/ign_cache', expires_after=600)) as session:
-                            response = await session.get(f'https://api.hypixel.net/guild?key={os.getenv("APIKEY")}&id={row[1]}')
+                        async with aiohttp.ClientSession as session:
+                            response = await session.get(
+                                f'https://api.hypixel.net/guild?key={os.getenv("APIKEY")}&id={row[1]}')
                             if response.status != 200:
                                 return
                             data = await response.json()
