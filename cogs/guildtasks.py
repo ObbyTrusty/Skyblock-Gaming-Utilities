@@ -40,16 +40,17 @@ class GuildTasks(commands.Cog):
                 print(guild)
                 guildvoicechannel = guild.get_channel(voiceid)
                 async with aiohttp.ClientSession as session:
-                    response = await session.get(f'https://api.hypixel.net/guild?key={os.getenv("APIKEY")}&id={guildid}')
-                    if response.status != 200:
-                        return
-                    data = await response.json()
-                    if data['success'] == False:
-                        return
-                    if data['guild'] is None:
-                        return
-                    await guildvoicechannel.edit(name=f'{data["guild"]["name"]} Members: {len(data["guild"]["members"])}')
-                    print(f'Updated Voice for {guild}')
+                    async with session.get(
+                            f'https://api.hypixel.net/guild?key={os.getenv("APIKEY")}&id={guildid}') as response:
+                        if response.status != 200:
+                            return
+                        data = await response.json()
+                        if data['success'] == False:
+                            return
+                        if data['guild'] is None:
+                            return
+                        await guildvoicechannel.edit(name=f'{data["guild"]["name"]} Members: {len(data["guild"]["members"])}')
+                        print(f'Updated Voice for {guild}')
             except Exception as e:
                 print(e)
 

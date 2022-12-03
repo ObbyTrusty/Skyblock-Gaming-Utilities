@@ -23,26 +23,26 @@ class GuildFeatures(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def link(self, ctx, guild):
         async with CachedSession(cache=SQLiteBackend('database/ign_cache', expires_after=600)) as session:
-            response = await session.get(f'https://api.hypixel.net/guild?key={os.getenv("APIKEY")}&name={guild}')
-            if response.status != 200:
-                embed = discord.Embed(title=f'Error',
-                                      description='Error fetching information from the API. Try again later',
-                                      colour=0xFF0000)
-                await ctx.respond(embed=embed)
-                return
-            data = await response.json()
-            if data['success'] == False:
-                embed = discord.Embed(title=f'Error',
-                                      description='Error fetching information from the API. Try again later',
-                                      colour=0xFF0000)
-                await ctx.respond(embed=embed)
-                return
-            if data['guild'] is None:
-                embed = discord.Embed(title=f'Error',
-                                      description='Guild does not exist.',
-                                      colour=0xFF0000)
-                await ctx.respond(embed=embed)
-                return
+            async with session.get(f'https://api.hypixel.net/guild?key={os.getenv("APIKEY")}&name={guild}') as response:
+                if response.status != 200:
+                    embed = discord.Embed(title=f'Error',
+                                          description='Error fetching information from the API. Try again later',
+                                          colour=0xFF0000)
+                    await ctx.respond(embed=embed)
+                    return
+                data = await response.json()
+                if data['success'] == False:
+                    embed = discord.Embed(title=f'Error',
+                                          description='Error fetching information from the API. Try again later',
+                                          colour=0xFF0000)
+                    await ctx.respond(embed=embed)
+                    return
+                if data['guild'] is None:
+                    embed = discord.Embed(title=f'Error',
+                                          description='Guild does not exist.',
+                                          colour=0xFF0000)
+                    await ctx.respond(embed=embed)
+                    return
             guilduuid = data['guild']['_id']
             guild = data['guild']['name']
             async with aiosqlite.connect('database/SGGuildDB.sqlite') as db:
