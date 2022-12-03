@@ -3,6 +3,7 @@ import sqlite3
 import aiohttp
 from discord.ext import commands, tasks
 
+
 class GuildTasks(commands.Cog):
     def __init__(self, bot):
         if os.getenv("DEBUGMODE") != "True":
@@ -49,7 +50,8 @@ class GuildTasks(commands.Cog):
                             return
                         if data['guild'] is None:
                             return
-                        await guildvoicechannel.edit(name=f'{data["guild"]["name"]} Members: {len(data["guild"]["members"])}')
+                        await guildvoicechannel.edit(
+                            name=f'{data["guild"]["name"]} Members: {len(data["guild"]["members"])}')
                         print(f'Updated Voice for {guild}')
             except Exception as e:
                 print(e)
